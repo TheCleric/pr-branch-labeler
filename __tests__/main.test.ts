@@ -1,6 +1,5 @@
 import "jest-extended";
 import nock from "nock";
-import path from "path";
 import { configFixture } from './shared';
 
 nock.disableNetConnect();
@@ -11,10 +10,9 @@ describe("PR Branch Labeler", () => {
   beforeEach(() => {
     const repoToken = "token";
     process.env["INPUT_REPO-TOKEN"] = repoToken;
-    process.env["GITHUB_REPOSITORY"] = "Codertocat/Hello-World";
-    process.env["GITHUB_EVENT_PATH"] = path.join(__dirname, "fixtures", "payload.json");
 
     main = require("../src/main");
+    main.context.sha = "0123456";
   });
 
   afterEach(() => {
@@ -25,7 +23,7 @@ describe("PR Branch Labeler", () => {
     // Arrange
     const getConfigScope = nock("https://api.github.com")
       .persist()
-      .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml")
+      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
       .reply(200, configFixture());
 
     const postLabelsScope = nock("https://api.github.com")
@@ -49,7 +47,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml")
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -79,7 +77,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml")
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -109,7 +107,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml")
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -137,7 +135,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml")
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -165,7 +163,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml")
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -191,7 +189,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml")
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -218,7 +216,7 @@ describe("PR Branch Labeler", () => {
     // Arrange
     const getConfigScope = nock("https://api.github.com")
       .persist()
-      .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml")
+      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
       .reply(404);
 
     const postLabelsScope = nock("https://api.github.com")
@@ -246,7 +244,7 @@ describe("PR Branch Labeler", () => {
     // Arrange
     const getConfigScope = nock("https://api.github.com")
       .persist()
-      .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml")
+      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
       .reply(200, configFixture());
 
     const postLabelsScope = nock("https://api.github.com")
@@ -271,7 +269,7 @@ describe("PR Branch Labeler", () => {
     // Arrange
     const getConfigScope = nock("https://api.github.com")
       .persist()
-      .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml")
+      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
       .reply(200, configFixture("invalid-config.yml"));
 
     const postLabelsScope = nock("https://api.github.com")

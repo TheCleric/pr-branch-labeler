@@ -19,15 +19,15 @@ describe("Config file loader", () => {
         // Arrange
         const getConfigScope = nock("https://api.github.com")
             .persist()
-            .get("/repos/TheCleric/Hello-World/contents/.github/pr-branch-labeler.yml")
+            .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456")
             .reply(200, configFixture());
 
         const octokit = new github.GitHub("token");
 
         const config = await getConfig(octokit, "pr-branch-labeler.yml", {
             repo: "Hello-World",
-            owner: "TheCleric"
-        });
+            owner: "Codertocat"
+        }, "0123456");
 
         // Assert
         expect(getConfigScope.isDone()).toBeTrue();
@@ -40,15 +40,15 @@ describe("Config file loader", () => {
         // Arrange
         const getConfigScope = nock("https://api.github.com")
             .persist()
-            .get("/repos/TheCleric/Hello-World/contents/.github/pr-branch-labeler.yml")
+            .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456")
             .reply(200, configFixture("invalid-config.yml"));
 
         const octokit = new github.GitHub("token");
 
         await expect(getConfig(octokit, "pr-branch-labeler.yml", {
             repo: "Hello-World",
-            owner: "TheCleric"
-        })).rejects.toThrow(new Error("config.yml has invalid structure."));
+            owner: "Codertocat"
+        }, "0123456")).rejects.toThrow(new Error("config.yml has invalid structure."));
 
         // Assert
         expect(getConfigScope.isDone()).toBeTrue();
@@ -60,15 +60,15 @@ describe("Config file loader", () => {
         // Arrange
         const getConfigScope = nock("https://api.github.com")
             .persist()
-            .get("/repos/TheCleric/Hello-World/contents/.github/test")
+            .get("/repos/Codertocat/Hello-World/contents/.github/test?ref=0123456")
             .reply(200, []);
 
         const octokit = new github.GitHub("token");
 
         await expect(getConfig(octokit, "test", {
             repo: "Hello-World",
-            owner: "TheCleric"
-        })).rejects.toThrow(new Error("test is not a file."));
+            owner: "Codertocat"
+        }, "0123456")).rejects.toThrow(new Error("test is not a file."));
 
         // Assert
         expect(getConfigScope.isDone()).toBeTrue();
@@ -80,15 +80,15 @@ describe("Config file loader", () => {
         // Arrange
         const getConfigScope = nock("https://api.github.com")
             .persist()
-            .get("/repos/TheCleric/Hello-World/contents/.github/pr-branch-labeler.yml")
+            .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456")
             .reply(200, emptyConfigFixture());
 
         const octokit = new github.GitHub("token");
 
         await expect(getConfig(octokit, "pr-branch-labeler.yml", {
             repo: "Hello-World",
-            owner: "TheCleric"
-        })).rejects.toThrow(new Error("pr-branch-labeler.yml is empty."));
+            owner: "Codertocat"
+        }, "0123456")).rejects.toThrow(new Error("pr-branch-labeler.yml is empty."));
 
         // Assert
         expect(getConfigScope.isDone()).toBeTrue();
