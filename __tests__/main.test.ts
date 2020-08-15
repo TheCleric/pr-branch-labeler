@@ -1,5 +1,6 @@
 import "jest-extended";
 import nock from "nock";
+import path from "path";
 import { configFixture } from './shared';
 
 nock.disableNetConnect();
@@ -10,9 +11,10 @@ describe("PR Branch Labeler", () => {
   beforeEach(() => {
     const repoToken = "token";
     process.env["INPUT_REPO-TOKEN"] = repoToken;
+    process.env["GITHUB_REPOSITORY"] = "Codertocat/Hello-World";
+    process.env["GITHUB_EVENT_PATH"] = path.join(__dirname, "fixtures", "payload.json");
 
     main = require("../src/main");
-    main.context.sha = "0123456";
   });
 
   afterEach(() => {
@@ -23,7 +25,7 @@ describe("PR Branch Labeler", () => {
     // Arrange
     const getConfigScope = nock("https://api.github.com")
       .persist()
-      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
+      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.payload.pull_request.head.sha}`)
       .reply(200, configFixture());
 
     const postLabelsScope = nock("https://api.github.com")
@@ -31,7 +33,7 @@ describe("PR Branch Labeler", () => {
       .post("/repos/Codertocat/Hello-World/issues/42/labels")
       .reply(200);
 
-    main.context.payload = createPullRequestOpenedFixture("feature/FOO-42-awesome-stuff", "master");
+    main.context.payload = createPullRequestOpenedFixture("feature/FOO-42-awesome-stuff", "master", main.context.payload.pull_request.head.sha);
 
     // Act
     await main.run();
@@ -47,7 +49,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.payload.pull_request.head.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -60,7 +62,7 @@ describe("PR Branch Labeler", () => {
         })
         .reply(200);
 
-      main.context.payload = createPullRequestOpenedFixture("feature/FOO-42-awesome-stuff", "master");
+      main.context.payload = createPullRequestOpenedFixture("feature/FOO-42-awesome-stuff", "master", main.context.payload.pull_request.head.sha);
 
       // Act
       await main.run();
@@ -77,7 +79,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.payload.pull_request.head.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -90,7 +92,7 @@ describe("PR Branch Labeler", () => {
         })
         .reply(200);
 
-      main.context.payload = createPullRequestOpenedFixture("support/FOO-42-assisting", "master");
+      main.context.payload = createPullRequestOpenedFixture("support/FOO-42-assisting", "master", main.context.payload.pull_request.head.sha);
 
       // Act
       await main.run();
@@ -107,7 +109,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.payload.pull_request.head.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -120,7 +122,7 @@ describe("PR Branch Labeler", () => {
         })
         .reply(200);
 
-      main.context.payload = createPullRequestOpenedFixture("bugfix/FOO-42-squash-bugs", "master");
+      main.context.payload = createPullRequestOpenedFixture("bugfix/FOO-42-squash-bugs", "master", main.context.payload.pull_request.head.sha);
 
       // Act
       await main.run();
@@ -135,7 +137,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.payload.pull_request.head.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -148,7 +150,7 @@ describe("PR Branch Labeler", () => {
         })
         .reply(200);
 
-      main.context.payload = createPullRequestOpenedFixture("hotfix/FOO-42-squash-bugs", "master");
+      main.context.payload = createPullRequestOpenedFixture("hotfix/FOO-42-squash-bugs", "master", main.context.payload.pull_request.head.sha);
 
       // Act
       await main.run();
@@ -163,7 +165,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.payload.pull_request.head.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -174,7 +176,7 @@ describe("PR Branch Labeler", () => {
         })
         .reply(200);
 
-      main.context.payload = createPullRequestOpenedFixture("bugfix/FOO-42-changes", "release/1.0.0");
+      main.context.payload = createPullRequestOpenedFixture("bugfix/FOO-42-changes", "release/1.0.0", main.context.payload.pull_request.head.sha);
 
       // Act
       await main.run();
@@ -189,7 +191,7 @@ describe("PR Branch Labeler", () => {
       // Arrange
       const getConfigScope = nock("https://api.github.com")
         .persist()
-        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
+        .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.payload.pull_request.head.sha}`)
         .reply(200, configFixture());
 
       const postLabelsScope = nock("https://api.github.com")
@@ -200,7 +202,7 @@ describe("PR Branch Labeler", () => {
         })
         .reply(200);
 
-      main.context.payload = createPullRequestOpenedFixture("feature/FOO-42-part", "feature/FOO-42-whole");
+      main.context.payload = createPullRequestOpenedFixture("feature/FOO-42-part", "feature/FOO-42-whole", main.context.payload.pull_request.head.sha);
 
       // Act
       await main.run();
@@ -216,7 +218,7 @@ describe("PR Branch Labeler", () => {
     // Arrange
     const getConfigScope = nock("https://api.github.com")
       .persist()
-      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
+      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.payload.pull_request.head.sha}`)
       .reply(404);
 
     const postLabelsScope = nock("https://api.github.com")
@@ -229,7 +231,7 @@ describe("PR Branch Labeler", () => {
       })
       .reply(200);
 
-    main.context.payload = createPullRequestOpenedFixture("feature/FOO-42-awesome-stuff", "master");
+    main.context.payload = createPullRequestOpenedFixture("feature/FOO-42-awesome-stuff", "master", main.context.payload.pull_request.head.sha);
 
     // Act
     await main.run();
@@ -244,7 +246,7 @@ describe("PR Branch Labeler", () => {
     // Arrange
     const getConfigScope = nock("https://api.github.com")
       .persist()
-      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
+      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.payload.pull_request.head.sha}`)
       .reply(200, configFixture());
 
     const postLabelsScope = nock("https://api.github.com")
@@ -254,7 +256,7 @@ describe("PR Branch Labeler", () => {
       })
       .reply(200);
 
-    main.context.payload = createPullRequestOpenedFixture("fix-the-build", "master");
+    main.context.payload = createPullRequestOpenedFixture("fix-the-build", "master", main.context.payload.pull_request.head.sha);
 
     // Act
     await main.run();
@@ -269,7 +271,7 @@ describe("PR Branch Labeler", () => {
     // Arrange
     const getConfigScope = nock("https://api.github.com")
       .persist()
-      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.sha}`)
+      .get(`/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=${main.context.payload.pull_request.head.sha}`)
       .reply(200, configFixture("invalid-config.yml"));
 
     const postLabelsScope = nock("https://api.github.com")
@@ -279,7 +281,7 @@ describe("PR Branch Labeler", () => {
       })
       .reply(200);
 
-    main.context.payload = createPullRequestOpenedFixture("feature/FOO-42-awesome-stuff", "master");
+    main.context.payload = createPullRequestOpenedFixture("feature/FOO-42-awesome-stuff", "master", main.context.payload.pull_request.head.sha);
 
     // Act
     await expect(main.run()).rejects.toThrow(new Error("config.yml has invalid structure."));
@@ -291,13 +293,14 @@ describe("PR Branch Labeler", () => {
   });
 });
 
-function createPullRequestOpenedFixture(headRef: string, baseRef: string) {
+function createPullRequestOpenedFixture(headRef: string, baseRef: string, sha: string) {
   return {
     action: "opened",
     pull_request: {
       number: 42,
       head: {
-        ref: headRef
+        ref: headRef,
+        sha
       },
       base: {
         ref: baseRef
