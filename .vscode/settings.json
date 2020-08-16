@@ -1,4 +1,5 @@
 {
     "jest.debugMode": true,
-    "prettier.printWidth": 120
+    "prettier.printWidth": 120,
+    "git.ignoreLimitWarning": true
 }
