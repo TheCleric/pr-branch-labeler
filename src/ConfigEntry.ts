@@ -29,21 +29,10 @@ export class ConfigEntry implements ConfigEntryParams {
     const headMatches = ConfigEntry.getMatches(headRef, this.head, this.headRegExp);
     const baseMatches = ConfigEntry.getMatches(baseRef, this.base, this.baseRegExp);
 
-    core.debug('*** getLabel ***');
-    core.debug(JSON.stringify(this));
-    core.debug('headRef');
-    core.debug(headRef);
-    core.debug('headMatches');
-    core.debug(JSON.stringify(headMatches));
-    core.debug('baseRef');
-    core.debug(baseRef);
-    core.debug('baseMatches');
-    core.debug(JSON.stringify(baseMatches));
-
     if ((this.head || this.headRegExp) && (this.base || this.baseRegExp)) {
       if (headMatches && baseMatches) {
         const label = this.getLabelFromMatches(headMatches.concat(baseMatches));
-        core.debug(`Matched "${headRef}" to "${this.head ? this.head : this.headRegExp!.toString()}" and "${baseRef}" to "${this.base ? this.base : this.baseRegExp!.toString()}". Setting label to "${label}"`);
+        core.info(`Matched "${headRef}" to "${this.head ? this.head : this.headRegExp!.toString()}" and "${baseRef}" to "${this.base ? this.base : this.baseRegExp!.toString()}". Setting label to "${label}"`);
         return label;
       }
       return undefined;
@@ -51,17 +40,16 @@ export class ConfigEntry implements ConfigEntryParams {
 
     if ((this.head || this.headRegExp) && headMatches) {
       const label = this.getLabelFromMatches(headMatches);
-      core.debug(`Matched "${headRef}" to "${this.head ? this.head : this.headRegExp!.toString()}". Setting label to "${label}"`);
+      core.info(`Matched "${headRef}" to "${this.head ? this.head : this.headRegExp!.toString()}". Setting label to "${label}"`);
       return label;
     }
 
     if ((this.base || this.baseRegExp) && baseMatches) {
       const label = this.getLabelFromMatches(baseMatches);
-      core.debug(`Matched "${baseRef}" to "${this.base ? this.base : this.baseRegExp!.toString()}". Setting label to "${label}"`);
+      core.info(`Matched "${baseRef}" to "${this.base ? this.base : this.baseRegExp!.toString()}". Setting label to "${label}"`);
       return label;
     }
 
-    //core.debug('label', undefined);
     return undefined;
   }
 
