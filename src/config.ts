@@ -7,8 +7,6 @@ import { ConfigEntry } from "./ConfigEntry";
 const CONFIG_PATH = ".github";
 
 export async function getConfig(github: github.GitHub, fileName: string, context: Context.Context): Promise<ConfigEntry[]> {
-  // console.log('getConfig context', context);
-
   try {
     const configFile = {
       owner: context.repo.owner,
@@ -26,6 +24,7 @@ export async function getConfig(github: github.GitHub, fileName: string, context
     }
     return parseConfig(response.data.content);
   } catch (error) {
+    core.debug(`getConfig error: ${JSON.stringify(error)}`);
     if (error.status === 404) {
       return [];
     }
