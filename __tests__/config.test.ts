@@ -1,126 +1,144 @@
-import * as github from "@actions/github";
+import * as github from '@actions/github';
 import * as Context from '@actions/github/lib/context';
-import "jest-extended";
-import nock from "nock";
-import path from "path";
+import 'jest-extended';
+import nock from 'nock';
+import path from 'path';
 import { getConfig } from '../src/config';
 import { configFixture, emptyConfigFixture } from './shared';
 
+describe('Config file loader', () => {
+  let context;
 
-nock.disableNetConnect();
+  beforeAll(() => {
+    if (!nock.isActive()) {
+      nock.activate();
+    }
+    nock.disableNetConnect();
+  });
 
-describe("Config file loader", () => {
-    let context;
+  beforeEach(() => {
+    const repoToken = 'token';
+    process.env['INPUT_REPO-TOKEN'] = repoToken;
+    process.env['GITHUB_REPOSITORY'] = 'Codertocat/Hello-World';
+    process.env['GITHUB_EVENT_PATH'] = path.join(__dirname, 'fixtures', 'payload.json');
 
-    beforeEach(() => {
-        const repoToken = "token";
-        process.env["INPUT_REPO-TOKEN"] = repoToken;
-        process.env["GITHUB_REPOSITORY"] = "Codertocat/Hello-World";
-        process.env["GITHUB_EVENT_PATH"] = path.join(__dirname, "fixtures", "payload.json");
+    context = new Context.Context();
+  });
 
-        context = new Context.Context();
-    });
+  afterEach(() => {
+    nock.cleanAll();
+  });
 
-    afterEach(() => {
-        nock.cleanAll();
-    });
+  afterEach(() => {
+    console.log('Active Nock Mocks', nock.activeMocks());
+    nock.cleanAll();
+  });
 
-    it("succeeds", async () => {
-        // Arrange
-        const getConfigScope = nock("https://api.github.com")
-            .persist()
-            .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456")
-            .reply(200, configFixture());
+  afterAll(() => {
+    nock.enableNetConnect();
+    nock.restore();
+  });
 
-        const octokit = new github.GitHub("token");
+  it('succeeds', async () => {
+    // Arrange
+    const getConfigScope = nock('https://api.github.com')
+      .persist()
+      .get('/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456')
+      .reply(200, configFixture());
 
-        const config = await getConfig(octokit, "pr-branch-labeler.yml", context);
+    const octokit = new github.GitHub('token');
 
-        // Assert
-        expect(getConfigScope.isDone()).toBeTrue();
-        expect(config.length).toEqual(11);
-        expect.assertions(2);
-    });
+    const config = await getConfig(octokit, 'pr-branch-labeler.yml', context);
 
-    it("converts regular expressions", async () => {
-        // Arrange
-        const getConfigScope = nock("https://api.github.com")
-            .persist()
-            .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456")
-            .reply(200, configFixture());
+    // Assert
+    expect(getConfigScope.isDone()).toBeTrue();
+    expect(config.length).toEqual(12);
+    expect.assertions(2);
+  });
 
-        const octokit = new github.GitHub("token");
+  it('converts regular expressions', async () => {
+    // Arrange
+    const getConfigScope = nock('https://api.github.com')
+      .persist()
+      .get('/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456')
+      .reply(200, configFixture());
 
-        const config = await getConfig(octokit, "pr-branch-labeler.yml", context);
+    const octokit = new github.GitHub('token');
 
-        const headRegExpConfigs = config.filter(x => x.headRegExp);
-        const headRegExpConfigsWithRegExp = headRegExpConfigs.filter(x =>
-            Array.isArray(x.headRegExp)
-                ? x.headRegExp.map(x => x !== null && x.exec !== undefined).reduce((a, v) => a && v, true)
-                : x.headRegExp!.exec !== undefined
-        )
+    const config = await getConfig(octokit, 'pr-branch-labeler.yml', context);
 
-        const baseRegExpConfigs = config.filter(x => x.baseRegExp);
-        const baseRegExpConfigsWithRegExp = baseRegExpConfigs.filter(x =>
-            Array.isArray(x.baseRegExp)
-                ? x.baseRegExp.map(x => x !== null && x.exec !== undefined).reduce((a, v) => a && v, true)
-                : x.baseRegExp!.exec !== undefined
-        )
+    const headRegExpConfigs = config.filter(x => x.headRegExp);
+    const headRegExpConfigsWithRegExp = headRegExpConfigs.filter(x =>
+      Array.isArray(x.headRegExp)
+        ? x.headRegExp.map(x => x !== null && x.exec !== undefined).reduce((a, v) => a && v, true)
+        : x.headRegExp!.exec !== undefined,
+    );
 
-        // Assert
-        expect(getConfigScope.isDone()).toBeTrue();
-        expect(headRegExpConfigs.length).toBeGreaterThan(0);
-        expect(headRegExpConfigs.length).toEqual(headRegExpConfigsWithRegExp.length);
-        expect(baseRegExpConfigs.length).toBeGreaterThan(0);
-        expect(baseRegExpConfigs.length).toEqual(baseRegExpConfigs.length);
-        expect.assertions(5);
-    });
+    const baseRegExpConfigs = config.filter(x => x.baseRegExp);
+    const baseRegExpConfigsWithRegExp = baseRegExpConfigs.filter(x =>
+      Array.isArray(x.baseRegExp)
+        ? x.baseRegExp.map(x => x !== null && x.exec !== undefined).reduce((a, v) => a && v, true)
+        : x.baseRegExp!.exec !== undefined,
+    );
 
-    it("throws an error for an invalid config file", async () => {
-        // Arrange
-        const getConfigScope = nock("https://api.github.com")
-            .persist()
-            .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456")
-            .reply(200, configFixture("invalid-config.yml"));
+    // Assert
+    expect(getConfigScope.isDone()).toBeTrue();
+    expect(headRegExpConfigs.length).toBeGreaterThan(0);
+    expect(headRegExpConfigs.length).toEqual(headRegExpConfigsWithRegExp.length);
+    expect(baseRegExpConfigs.length).toBeGreaterThan(0);
+    expect(baseRegExpConfigs.length).toEqual(baseRegExpConfigs.length);
+    expect.assertions(5);
+  });
 
-        const octokit = new github.GitHub("token");
+  it('throws an error for an invalid config file', async () => {
+    // Arrange
+    const getConfigScope = nock('https://api.github.com')
+      .persist()
+      .get('/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456')
+      .reply(200, configFixture('invalid-config.yml'));
 
-        await expect(getConfig(octokit, "pr-branch-labeler.yml", context)).rejects.toThrow(new Error("config.yml has invalid structure."));
+    const octokit = new github.GitHub('token');
 
-        // Assert
-        expect(getConfigScope.isDone()).toBeTrue();
-        expect.assertions(2);
-    });
+    await expect(getConfig(octokit, 'pr-branch-labeler.yml', context)).rejects.toThrow(
+      new Error('config.yml has invalid structure.'),
+    );
 
-    it("throws an error for a directory", async () => {
-        // Arrange
-        const getConfigScope = nock("https://api.github.com")
-            .persist()
-            .get("/repos/Codertocat/Hello-World/contents/.github/test?ref=0123456")
-            .reply(200, []);
+    // Assert
+    expect(getConfigScope.isDone()).toBeTrue();
+    expect.assertions(2);
+  });
 
-        const octokit = new github.GitHub("token");
+  it('throws an error for a directory', async () => {
+    // Arrange
+    const getConfigScope = nock('https://api.github.com')
+      .persist()
+      .get('/repos/Codertocat/Hello-World/contents/.github/test?ref=0123456')
+      .reply(200, []);
 
-        await expect(getConfig(octokit, "test", context)).rejects.toThrow(new Error("test is not a file."));
+    const octokit = new github.GitHub('token');
 
-        // Assert
-        expect(getConfigScope.isDone()).toBeTrue();
-        expect.assertions(2);
-    });
+    await expect(getConfig(octokit, 'test', context)).rejects.toThrow(new Error('test is not a file.'));
 
-    it("throws an error for no contents", async () => {
-        // Arrange
-        const getConfigScope = nock("https://api.github.com")
-            .persist()
-            .get("/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456")
-            .reply(200, emptyConfigFixture());
+    // Assert
+    expect(getConfigScope.isDone()).toBeTrue();
+    expect.assertions(2);
+  });
 
-        const octokit = new github.GitHub("token");
+  it('throws an error for no contents', async () => {
+    // Arrange
+    const getConfigScope = nock('https://api.github.com')
+      .persist()
+      .get('/repos/Codertocat/Hello-World/contents/.github/pr-branch-labeler.yml?ref=0123456')
+      .reply(200, emptyConfigFixture());
 
-        await expect(getConfig(octokit, "pr-branch-labeler.yml", context)).rejects.toThrow(new Error("pr-branch-labeler.yml is empty."));
+    const octokit = new github.GitHub('token');
 
-        // Assert
-        expect(getConfigScope.isDone()).toBeTrue();
-        expect.assertions(2);
-    });
+    await expect(getConfig(octokit, 'pr-branch-labeler.yml', context)).rejects.toThrow(
+      new Error('pr-branch-labeler.yml is empty.'),
+    );
+
+    // Assert
+    expect(getConfigScope.isDone()).toBeTrue();
+    expect.assertions(2);
+  });
 });
