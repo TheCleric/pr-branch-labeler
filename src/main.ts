@@ -1,20 +1,20 @@
-import * as core from "@actions/core";
-import * as github from "@actions/github";
-import { getConfig } from "./config";
-import { ConfigEntry } from "./ConfigEntry";
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { getConfig } from './config';
+import { ConfigEntry } from './ConfigEntry';
 
-const CONFIG_FILENAME = "pr-branch-labeler.yml";
+const CONFIG_FILENAME = 'pr-branch-labeler.yml';
 const defaults: ConfigEntry[] = [
-  new ConfigEntry({ label: "feature", head: "feature/*" }),
-  new ConfigEntry({ label: "bugfix", head: ["bugfix/*", "hotfix/*"] }),
-  new ConfigEntry({ label: "chore", head: "chore/*" })
+  new ConfigEntry({ label: 'feature', head: 'feature/*' }),
+  new ConfigEntry({ label: 'bugfix', head: ['bugfix/*', 'hotfix/*'] }),
+  new ConfigEntry({ label: 'chore', head: 'chore/*' }),
 ];
 
 // Export the context to be able to mock the payload during tests.
 export const context = github.context;
 
 export async function run() {
-  const repoToken: string = core.getInput("repo-token", { required: true });
+  const repoToken: string = core.getInput('repo-token', { required: true });
 
   core.debug(`context: ${context ? JSON.stringify(context) : ''}`);
 
@@ -27,7 +27,8 @@ export async function run() {
     const headRef = context.payload.pull_request.head.ref;
     const baseRef = context.payload.pull_request.base.ref;
 
-    const labelsToAdd = config.map(entry => entry.getLabel(headRef, baseRef))
+    const labelsToAdd = config
+      .map(entry => entry.getLabel(headRef, baseRef))
       .filter(label => label !== undefined)
       .map(label => label!);
 
@@ -37,17 +38,16 @@ export async function run() {
       await octokit.issues.addLabels({
         issue_number: context.payload.pull_request.number,
         labels: labelsToAdd,
-        ...context.repo
+        ...context.repo,
       });
     }
   }
-
 }
 
-try {
-  run();
-} catch (error) {
-  core.error(`ERROR! ${JSON.stringify(error)}`);
-  core.setFailed(error.message);
-  throw error;
+if (require.main === module) {
+  run().catch((error: any) => {
+    core.error(`ERROR! ${error.toString()}`);
+    core.setFailed(error.message);
+    throw error;
+  });
 }

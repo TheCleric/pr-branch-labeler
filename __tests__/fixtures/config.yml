@@ -28,3 +28,5 @@ releaseregex: # Apply label "releaseregex" if base matches "release-regex/*"
 # Dynamic tags based on branch
 $1:
   baseRegExp: 'release-regexp[/](.*)'
+sprint$1:
+  baseRegExp: 'sprint-regexp[/](.*)'
