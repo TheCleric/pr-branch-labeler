@@ -1,23 +1,22 @@
 {
-  "name": "node12-template-action",
-  "version": "0.0.0",
+  "name": "github-pr-branch-labeler",
+  "version": "4.0.0",
   "private": true,
-  "description": "Node 12 template action",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest --silent"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/javascript-template.git"
+    "url": "git+https://github.com/TheCleric/pr-branch-labeler.git"
   },
   "keywords": [
     "actions",
     "node",
     "setup"
   ],
-  "author": "Florian Fittschen",
+  "author": "Adam Weeden",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.6",
@@ -26,19 +25,13 @@
     "matcher": "^2.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.13",
+    "@types/jest": "^27.4.1",
     "@types/js-yaml": "^3.12.1",
     "@types/node": "^12.0.4",
-    "jest": "^24.8.0",
-    "jest-circus": "^24.7.1",
+    "jest": "^27.5.1",
     "jest-extended": "^0.11.2",
     "nock": "^11.3.1",
-    "ts-jest": "^24.0.2",
-    "typescript": "^3.5.1"
-  },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "jest-extended"
-    ]
+    "ts-jest": "^27.1.4",
+    "typescript": "^4.6.3"
   }
 }

@@ -72,12 +72,12 @@ You can also specify regular expressions:
   baseRegExp: 'feature[/].*'
 ```
 
-When using regular expressions you may also use group match numbers as labels:
+When using regular expressions you may also use group match numbers in labels:
 
 ```yaml
-# Apply whatever comes after "release/" as the label when matching against base of "release/*"
-$1:
-  baseRegExp: 'release[/](.*)'
+# Apply whatever comes after "sprint/" in the label when matching against base of "sprint/*"
+sprint$1:
+  baseRegExp: 'sprint[/](.*)'
 ```
 
 In this example if you were merging into the `release/1.0.0` branch, the label `1.0.0` would be applied.
